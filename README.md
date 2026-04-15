@@ -9,12 +9,41 @@ Also, this template is not visual studio or winslop friendly.
 ## How to build
 
 ```bash
-make
+cc -o nob nob.c
+./nob
+```
+
+## How to run
+
+```bash
+./nob --run
 ```
 
 ---
 
-## Template overview
+## Overview
+
+### The different commands
+
+Flags are unordered and can be added onto of each others.
+
+```bash
+./nob --clean
+```
+Cleans the build directory. Effectively removes the cache
+
+```bash
+./nob --run
+```
+Compiles if needed and runs the program
+
+```bash
+./nob --debug
+```
+Compiles the program with debug info
+
+
+### Template overview
 
 This template is really simple. You have 3 main things:
 
@@ -23,7 +52,7 @@ This template is really simple. You have 3 main things:
 2. Your makefile
 
 
-### The thick of it
+#### The thick of it
 
 `src/main.cpp` - This is where we init all. It was extracted from
                  the ImGUI examples. But this version is strippen
@@ -33,10 +62,5 @@ This template is really simple. You have 3 main things:
 `thirdparty/`  - This directory only contains the essentials of
                  imgui. You may add your libraries into it.
 
-`Makefile`     - It contains the base rules to compile your app.
-                 It will create both build/ and build/bin
-                 directories, and compile object and the binary
-                 in their respective folders.
-                 Moreover, it includes the thirdparty folder,
-                 src folder and the root folder. It also links
-                 with SDL3.
+`nob.c`        - A bit more complex than a Makefile, but way more
+                 explicit on what it does.

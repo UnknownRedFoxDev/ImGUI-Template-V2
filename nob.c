@@ -2,6 +2,9 @@
 #define NOB_EXPERIMENTAL_DELETE_OLD
 #include "thirdparty/nob.h"
 
+#define FLAG_IMPLEMENTATION
+#include "thirdparty/flag.h"
+
 #include <stdbool.h>
 
 #define CXX "g++"
@@ -155,21 +158,51 @@ defer:
     return result;
 }
 
+void usage(FILE *stream)
+{
+    fprintf(stream, "Usage: ./nob [OPTIONS]\n");
+    fprintf(stream, "OPTIONS:\n");
+    flag_print_options(stream);
+}
+
+void parse_flag(int argc, char **argv, bool *help, bool *clean, bool *run)
+{
+    flag_bool_var(&DEBUG, "-debug", false, "run in debug mode");
+    flag_bool_var(help, "-help", false, "Print this help");
+    flag_bool_var(clean, "-clean", false, "Cleans the build folder, removes the cache");
+    flag_bool_var(run, "-run", false, "run the program");
+
+    if (!flag_parse(argc, argv)) {
+        usage(stderr);
+        flag_print_error(stderr);
+        exit(1);
+    }
+
+    if (*help) {
+        usage(stderr);
+        exit(0);
+    }
+}
+
 int main(int argc, char **argv)
 {
     GO_REBUILD_URSELF(argc, argv);
 
-    int result = 0;
+    bool help, clean, run;
     bool needsRecompile = false;
+    int result = 0;
 
     Nob_Cmd cmd = {0};
-    // bool *help;
-    bool clean = false;
-    // bool *run;
+    parse_flag(argc, argv, &help, &clean, &run);
 
     if (!initialise_directories(clean)) return_defer(1);
     if (!compile_imgui(&needsRecompile)) return_defer(1);
     if (!compile_main(&cmd, needsRecompile)) return_defer(1);
+
+    if (run) {
+        cmd_append(&cmd, BIN_DIR "main");
+        if (!nob_cmd_run(&cmd)) return_defer(1);
+    }
 
 defer:
     free(cmd.items);
